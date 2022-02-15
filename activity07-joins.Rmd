@@ -144,7 +144,9 @@ To do so, take the Denny's locations and anti-join this with the states dataset.
 Remember to specify your `by` columns.
 
 ```{r}
-try1=anti_join(s,d,by=c("abbreviation"="state"))
+try1=s %>% 
+  anti_join(d,by=c("abbreviation"="state"))
+try1
 ```
 
 
@@ -196,12 +198,36 @@ ll=l %>%
   filter(country == "Other")
 ```
 
+
+```{r}
+try2 = l %>%
+  anti_join(s,by=c('state'='abbreviation'))
+try2
+```
+
+
 #### Isolating US locations
 
 For the rest of this activity, we will work with the data from the United States *only*.
 All Denny's locations in our file are in the US so we do not need to worry about updating this object, but you do need to do some work on the `laquinta` data.
 Create a new object called `laquinta_us` that only contains the locations inside the US.
 
+```{r}
+t=l %>% 
+  mutate(country = case_when(
+    state %in% s$abbreviation ~ "United States",
+    TRUE ~ "Other")) %>% 
+  filter(country != "Other")
+t
+
+tt=d %>% 
+  mutate(country = case_when(
+    state %in% s$abbreviation ~ "United States",
+    TRUE ~ "Other")) %>% 
+  filter(country != "Other")
+tt
+
+```
 
 
 ### Fewest locations
@@ -210,24 +236,32 @@ Let's test some of our data summary skills.
 
 Which US state(s) has/ve the fewest Denny's location?
 
+```{r}
+a = count(tt,state)
+a
+```
+
 
 
 
 **Response**:
-
+DE
 
 Which US state(s) has/ve the fewest La Quinta locations?
 
-
+```{r}
+a = count(t,state)
+a
+```
 
 
 **Response**:
-
+ME
 
 Is this surprising to you? Why or why not?
 
 **Response**:
-
+dunno never bee to either to know enuf about them
 
 ### Locations per thousand square miles
 

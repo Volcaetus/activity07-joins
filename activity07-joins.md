@@ -266,8 +266,13 @@ locations and anti-join this with the states dataset. Remember to
 specify your `by` columns.
 
 ``` r
-try1=anti_join(s,d,by=c("abbreviation"="state"))
+try1=s %>% 
+  anti_join(d,by=c("abbreviation"="state"))
+try1
 ```
+
+    ## # A tibble: 0 x 3
+    ## # … with 3 variables: name <chr>, abbreviation <chr>, area <dbl>
 
 #### A Brief Aside
 
@@ -324,6 +329,30 @@ ll=l %>%
   filter(country == "Other")
 ```
 
+``` r
+try2 = l %>%
+  anti_join(s,by=c('state'='abbreviation'))
+try2
+```
+
+    ## # A tibble: 14 x 6
+    ##    address                     city               state zip   longitude latitude
+    ##    <chr>                       <chr>              <chr> <chr>     <dbl>    <dbl>
+    ##  1 Carretera Panamericana Sur… "\nAguascalientes" AG    20345    -102.     21.8 
+    ##  2 Av. Tulum Mza. 14 S.M. 4 L… "\nCancun"         QR    77500     -86.8    21.2 
+    ##  3 Ejercito Nacional 8211      "Col\nPartido Igl… CH    32528    -106.     31.7 
+    ##  4 Blvd. Aeropuerto 4001       "Parque Industria… NL    66600    -100.     25.8 
+    ##  5 Carrera 38 # 26-13 Avenida… "\nMedellin Colom… ANT   0500…     -75.6     6.22
+    ##  6 AV. PINO SUAREZ No. 1001    "Col. Centro\nMon… NL    64000    -100.     25.7 
+    ##  7 Av. Fidel Velazquez #3000 … "\nMonterrey"      NL    64190    -100.     25.7 
+    ##  8 63 King Street East         "\nOshawa"         ON    L1H1…     -78.9    43.9 
+    ##  9 Calle Las Torres-1 Colonia… "\nPoza Rica"      VE    93210     -97.4    20.6 
+    ## 10 Blvd. Audi N. 3 Ciudad Mod… "\nSan Jose Chiap… PU    75010     -97.8    19.2 
+    ## 11 Ave. Zeta del Cochero No 4… "Col. ReservaTerr… PU    72810     -98.2    19.0 
+    ## 12 Av. Benito Juarez 1230 B (… "\nSan Luis Potos… SL    78399    -101.     22.1 
+    ## 13 Blvd. Fuerza Armadas        "contiguo Mall La… FM    11101     -87.2    14.1 
+    ## 14 8640 Alexandra Rd           "\nRichmond"       BC    V6X1…    -123.     49.2
+
 #### Isolating US locations
 
 For the rest of this activity, we will work with the data from the
@@ -332,21 +361,109 @@ we do not need to worry about updating this object, but you do need to
 do some work on the `laquinta` data. Create a new object called
 `laquinta_us` that only contains the locations inside the US.
 
+``` r
+t=l %>% 
+  mutate(country = case_when(
+    state %in% s$abbreviation ~ "United States",
+    TRUE ~ "Other")) %>% 
+  filter(country != "Other")
+t
+```
+
+    ## # A tibble: 895 x 7
+    ##    address                city         state zip   longitude latitude country   
+    ##    <chr>                  <chr>        <chr> <chr>     <dbl>    <dbl> <chr>     
+    ##  1 793 W. Bel Air Avenue  "\nAberdeen" MD    21001     -76.2     39.5 United St…
+    ##  2 3018 CatClaw Dr        "\nAbilene"  TX    79606     -99.8     32.4 United St…
+    ##  3 3501 West Lake Rd      "\nAbilene"  TX    79601     -99.7     32.5 United St…
+    ##  4 184 North Point Way    "\nAcworth"  GA    30102     -84.7     34.1 United St…
+    ##  5 2828 East Arlington S… "\nAda"      OK    74820     -96.6     34.8 United St…
+    ##  6 14925 Landmark Blvd    "\nAddison"  TX    75254     -96.8     33.0 United St…
+    ##  7 909 East Frontage Rd   "\nAlamo"    TX    78516     -98.1     26.2 United St…
+    ##  8 2116 Yale Blvd Southe… "\nAlbuquer… NM    87106    -107.      35.1 United St…
+    ##  9 7439 Pan American Fwy… "\nAlbuquer… NM    87109    -107.      35.2 United St…
+    ## 10 2011 Menaul Blvd Nort… "\nAlbuquer… NM    87107    -107.      35.1 United St…
+    ## # … with 885 more rows
+
+``` r
+tt=d %>% 
+  mutate(country = case_when(
+    state %in% s$abbreviation ~ "United States",
+    TRUE ~ "Other")) %>% 
+  filter(country != "Other")
+tt
+```
+
+    ## # A tibble: 1,643 x 7
+    ##    address                city         state zip   longitude latitude country   
+    ##    <chr>                  <chr>        <chr> <chr>     <dbl>    <dbl> <chr>     
+    ##  1 2900 Denali            Anchorage    AK    99503    -150.      61.2 United St…
+    ##  2 3850 Debarr Road       Anchorage    AK    99508    -150.      61.2 United St…
+    ##  3 1929 Airport Way       Fairbanks    AK    99701    -148.      64.8 United St…
+    ##  4 230 Connector Dr       Auburn       AL    36849     -85.5     32.6 United St…
+    ##  5 224 Daniel Payne Driv… Birmingham   AL    35207     -86.8     33.6 United St…
+    ##  6 900 16th St S, Common… Birmingham   AL    35294     -86.8     33.5 United St…
+    ##  7 5931 Alabama Highway,… Cullman      AL    35056     -86.9     34.2 United St…
+    ##  8 2190 Ross Clark Circle Dothan       AL    36301     -85.4     31.2 United St…
+    ##  9 900 Tyson Rd           Hope Hull (… AL    36043     -86.4     32.2 United St…
+    ## 10 4874 University Drive  Huntsville   AL    35816     -86.7     34.7 United St…
+    ## # … with 1,633 more rows
+
 ### Fewest locations
 
 Let’s test some of our data summary skills.
 
 Which US state(s) has/ve the fewest Denny’s location?
 
-**Response**:
+``` r
+a = count(tt,state)
+a
+```
+
+    ## # A tibble: 51 x 2
+    ##    state     n
+    ##    <chr> <int>
+    ##  1 AK        3
+    ##  2 AL        7
+    ##  3 AR        9
+    ##  4 AZ       83
+    ##  5 CA      403
+    ##  6 CO       29
+    ##  7 CT       12
+    ##  8 DC        2
+    ##  9 DE        1
+    ## 10 FL      140
+    ## # … with 41 more rows
+
+**Response**: DE
 
 Which US state(s) has/ve the fewest La Quinta locations?
 
-**Response**:
+``` r
+a = count(t,state)
+a
+```
+
+    ## # A tibble: 48 x 2
+    ##    state     n
+    ##    <chr> <int>
+    ##  1 AK        2
+    ##  2 AL       16
+    ##  3 AR       13
+    ##  4 AZ       18
+    ##  5 CA       56
+    ##  6 CO       27
+    ##  7 CT        6
+    ##  8 FL       74
+    ##  9 GA       41
+    ## 10 IA        4
+    ## # … with 38 more rows
+
+**Response**: ME
 
 Is this surprising to you? Why or why not?
 
-**Response**:
+**Response**: dunno never bee to either to know enuf about them
 
 ### Locations per thousand square miles
 
