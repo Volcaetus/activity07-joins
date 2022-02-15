@@ -13,6 +13,9 @@ knitr::opts_chunk$set(error = TRUE)
 Load the entirety of the `{tidyverse}`.
 Be sure to avoid printing out any unnecessary information and give the code chunk a meaningful name.
 
+```{r}
+library(tidyverse)
+```
 
 
 In this activity we will explore joining information that is contained in multiple data files.
@@ -31,6 +34,12 @@ Read each of the three files using `here::here` in combination with the appropri
 Assign each file to a meaningful object name (e.g., `dennys`,`laquinta`, and `states`), be sure to avoid printing any unnecessary information.
 Give your code chunk a meaningful name.
 
+```{r}
+setwd("~/STA518/Preps/activity07-joins")
+d=read_csv(here::here('data','dennys.csv'))
+l=read_csv(here::here('data','laquinta.csv'))
+s=read_csv(here::here('data','states.csv'))
+```
 
 
 
@@ -48,9 +57,9 @@ Below is a brief summary of the information that each function provides.
 Use the output from `str` of these datasets to complete the `Type` column in the partially started data dictionary tables below.
 
 ```{r data_info}
-str(dennys)
-str(laquinta)
-str(states)
+str(d)
+str(l)
+str(s)
 ```
 
 
@@ -97,13 +106,14 @@ What about Denny’s?
 
 **Response**:
 
+yup 
 
 If we wanted to do this using the datasets, would we need to ?
 Don’t worry about implementing this yet, you only need to brainstorm some ideas.
 Include at least one idea as your answer, but you are welcome to write down a few options too.
 
 **Response**:
-
+join on the state data set from both dennys and laquinta
 
 ### Preparing to Join
 
@@ -114,16 +124,28 @@ To do so, *filter* the Denny’s locations for observations where state is *not 
 Do not assign this to anything; we only want to see if we need to be aware of non-US cases.
 If there are any non-US locations, specify where these are.
 
+```{r}
+try = d %>%
+  filter(!d$state %in% (s$abbreviation))
 
+try
+```
+
+```{r}
+s%>%distinct(s$abbreviation)
+```
 
 
 **Response**:
-
+it appears none in dennys
 
 Now do this again, but using `anti_join`.
 To do so, take the Denny's locations and anti-join this with the states dataset.
 Remember to specify your `by` columns.
 
+```{r}
+try1=anti_join(s,d,by=c("abbreviation"="state"))
+```
 
 
 #### A Brief Aside
@@ -134,7 +156,7 @@ Then `dplyr::case_when` function is a nice way to do multiple if-else statements
 For example, your instructor could see if there are any Denny's in any the states that your instructor has lived in:
 
 ```{r}
-dennys %>%
+dd=d %>%
   mutate(bradford_lived = case_when(
     state %in% c("MI", "NC", "IL", "ME") ~ "Yes",
     TRUE ~ "No"))
@@ -151,12 +173,12 @@ However, this would be slightly inefficient to type as `TRUE ~ "No"` captures th
 
 To create a new variable called `country` where if the state is in the US, `country` is set to `"United States"` we would then do:
 
-```{r case_when}
-dennys %>% 
+```{r }
+ddd=d %>% 
   mutate(country = case_when(
-    state %in% states$abbreviation ~ "United States",
+    state %in% s$abbreviation ~ "United States",
     TRUE ~ "Other")) %>% 
-  filter(country != "Other")
+  filter(country == "Other")
 ```
 
 ![](README-img/noun_pause.png) **Planned Pause Point**: If you have any questions, contact your instructor. Otherwise feel free to continue on.
@@ -166,7 +188,13 @@ dennys %>%
 Determine if La Quinta has any locations that are outside of the US.
 
 
-
+```{r }
+ll=l %>% 
+  mutate(country = case_when(
+    state %in% s$abbreviation ~ "United States",
+    TRUE ~ "Other")) %>% 
+  filter(country == "Other")
+```
 
 #### Isolating US locations
 
